@@ -5,8 +5,9 @@ resource "aws_security_group" "default" {
   tags = {
     Name         = "${var.project_name}-${var.environment}-for-${var.resource_name}"
     ProjectName  = var.project_name
-    ResourceName = var.resource_name
     Environment  = var.environment
+    ResourceName = var.resource_name
+    Tool         = var.tool_name
   }
 }
 

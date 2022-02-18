@@ -53,7 +53,6 @@ module "http_sg" {
   vpc_id        = data.terraform_remote_state.network.outputs.terraform_study_vpc_id
   port          = "80"
   cidr_blocks   = ["0.0.0.0/0"]
-  project_name  = "terraform-template"
   resource_name = "alb"
   environment   = "dev"
 }

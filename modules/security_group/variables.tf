@@ -6,3 +6,4 @@ variable "cidr_blocks" {
 variable "project_name" {}
 variable "resource_name" {}
 variable "environment" {}
+variable "tool_name" {}
