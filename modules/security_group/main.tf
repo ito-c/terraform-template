@@ -1,6 +1,13 @@
 resource "aws_security_group" "default" {
-  name   = var.name
+  name   = "${var.project_name}-${var.environment}-security-group-for-${var.resource_name}"
   vpc_id = var.vpc_id
+
+  tags = {
+    Name         = "${var.project_name}-${var.environment}-for-${var.resource_name}"
+    ProjectName  = var.project_name
+    ResourceName = var.resource_name
+    Environment  = var.environment
+  }
 }
 
 resource "aws_security_group_rule" "ingress" {

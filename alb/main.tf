@@ -49,11 +49,13 @@ resource "aws_lb" "terraform_study" {
 }
 
 module "http_sg" {
-  source      = "../modules/security_group"
-  name        = "http-sg"
-  vpc_id      = data.terraform_remote_state.network.outputs.terraform_study_vpc_id
-  port        = "80"
-  cidr_blocks = ["0.0.0.0/0"]
+  source        = "../modules/security_group"
+  vpc_id        = data.terraform_remote_state.network.outputs.terraform_study_vpc_id
+  port          = "80"
+  cidr_blocks   = ["0.0.0.0/0"]
+  project_name  = "terraform-template"
+  resource_name = "alb"
+  environment   = "dev"
 }
 
 resource "aws_lb_listener" "http" {
