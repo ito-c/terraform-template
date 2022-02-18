@@ -1,4 +1,8 @@
 terraform {
+  required_version = ">= 0.12.0"
+  required_providers {
+    aws = ">= 3.37.0"
+  }
   backend "s3" {
     bucket = "tfstate-terraform-study"
     key    = "network/terraform.tfstate"
@@ -12,7 +16,11 @@ resource "aws_vpc" "terraform_study" {
   enable_dns_hostnames = true
 
   tags = {
-    Name = "terraform_study"
+    Name         = "terraform-template-dev-vpc"
+    ProjectName  = "terraform-template"
+    Environment  = "dev"
+    ResourceName = "vpc"
+    Tool         = "terraform"
   }
 }
 
@@ -27,7 +35,11 @@ resource "aws_subnet" "public_0" {
   availability_zone       = "ap-northeast-1a"
 
   tags = {
-    Name = "terraform_study"
+    Name         = "terraform-template-dev-public-subnet-0"
+    ProjectName  = "terraform-template"
+    Environment  = "dev"
+    ResourceName = "public-subnet-0"
+    Tool         = "terraform"
   }
 }
 
@@ -38,7 +50,11 @@ resource "aws_subnet" "public_1" {
   availability_zone       = "ap-northeast-1c"
 
   tags = {
-    Name = "terraform_study"
+    Name         = "terraform-template-dev-public-subnet-1"
+    ProjectName  = "terraform-template"
+    Environment  = "dev"
+    ResourceName = "public-subnet-1"
+    Tool         = "terraform"
   }
 }
 
@@ -77,7 +93,11 @@ resource "aws_subnet" "private_0" {
   availability_zone       = "ap-northeast-1a"
 
   tags = {
-    Name = "terraform_study"
+    Name         = "terraform-template-dev-private-subnet-0"
+    ProjectName  = "terraform-template"
+    Environment  = "dev"
+    ResourceName = "private-subnet-0"
+    Tool         = "terraform"
   }
 }
 
@@ -88,7 +108,11 @@ resource "aws_subnet" "private_1" {
   availability_zone       = "ap-northeast-1c"
 
   tags = {
-    Name = "terraform_study"
+    Name         = "terraform-template-dev-private-subnet-1"
+    ProjectName  = "terraform-template"
+    Environment  = "dev"
+    ResourceName = "private-subnet-1"
+    Tool         = "terraform"
   }
 }
 
