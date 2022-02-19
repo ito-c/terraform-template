@@ -4,13 +4,17 @@ terraform {
     aws = ">= 3.37.0"
   }
   backend "s3" {
-    bucket = "tfstate-terraform-study"
+    bucket = "tfstate-terraform-template"
     key    = "network/terraform.tfstate"
     region = "ap-northeast-1"
   }
 }
 
-resource "aws_vpc" "terraform_study" {
+#--------------------------------------------------
+# VPC
+#--------------------------------------------------
+
+resource "aws_vpc" "terraform_template" {
   cidr_block           = "172.16.0.0/16"
   enable_dns_support   = true
   enable_dns_hostnames = true
@@ -24,12 +28,12 @@ resource "aws_vpc" "terraform_study" {
   }
 }
 
-# *********************
-# パブリックサブネット
-# *********************
+#--------------------------------------------------
+# Public subnet
+#--------------------------------------------------
 
-resource "aws_subnet" "public_0" {
-  vpc_id                  = aws_vpc.terraform_study.id
+resource "aws_subnet" "public_1a" {
+  vpc_id                  = aws_vpc.terraform_template.id
   cidr_block              = "172.16.0.0/24"
   map_public_ip_on_launch = true
   availability_zone       = "ap-northeast-1a"
@@ -43,8 +47,8 @@ resource "aws_subnet" "public_0" {
   }
 }
 
-resource "aws_subnet" "public_1" {
-  vpc_id                  = aws_vpc.terraform_study.id
+resource "aws_subnet" "public_1c" {
+  vpc_id                  = aws_vpc.terraform_template.id
   cidr_block              = "172.16.1.0/24"
   map_public_ip_on_launch = true
   availability_zone       = "ap-northeast-1c"
@@ -58,99 +62,103 @@ resource "aws_subnet" "public_1" {
   }
 }
 
-resource "aws_internet_gateway" "terraform_study" {
-  vpc_id = aws_vpc.terraform_study.id
+resource "aws_internet_gateway" "terraform_template" {
+  vpc_id = aws_vpc.terraform_template.id
 }
 
 resource "aws_route_table" "public" {
-  vpc_id = aws_vpc.terraform_study.id
+  vpc_id = aws_vpc.terraform_template.id
 }
 
 resource "aws_route" "public" {
   route_table_id         = aws_route_table.public.id
-  gateway_id             = aws_internet_gateway.terraform_study.id
+  gateway_id             = aws_internet_gateway.terraform_template.id
   destination_cidr_block = "0.0.0.0/0"
 }
 
-resource "aws_route_table_association" "public_0" {
-  subnet_id      = aws_subnet.public_0.id
+resource "aws_route_table_association" "public_1a" {
+  subnet_id      = aws_subnet.public_1a.id
   route_table_id = aws_route_table.public.id
 }
 
-resource "aws_route_table_association" "public_1" {
-  subnet_id      = aws_subnet.public_1.id
+resource "aws_route_table_association" "public_1c" {
+  subnet_id      = aws_subnet.public_1c.id
   route_table_id = aws_route_table.public.id
 }
 
-# *********************
-# プライベートサブネット
-# *********************
+#--------------------------------------------------
+# Private subnet
+#--------------------------------------------------
 
-resource "aws_subnet" "private_0" {
-  vpc_id                  = aws_vpc.terraform_study.id
+resource "aws_subnet" "private_1a" {
+  vpc_id                  = aws_vpc.terraform_template.id
   cidr_block              = "172.16.2.0/24"
   map_public_ip_on_launch = false
   availability_zone       = "ap-northeast-1a"
 
   tags = {
-    Name         = "terraform-template-dev-private-subnet-0"
+    Name         = "terraform-template-dev-private-subnet-1a"
     ProjectName  = "terraform-template"
     Environment  = "dev"
-    ResourceName = "private-subnet-0"
+    ResourceName = "private-subnet-1a"
     Tool         = "terraform"
   }
 }
 
-resource "aws_subnet" "private_1" {
-  vpc_id                  = aws_vpc.terraform_study.id
+resource "aws_subnet" "private_1c" {
+  vpc_id                  = aws_vpc.terraform_template.id
   cidr_block              = "172.16.3.0/24"
   map_public_ip_on_launch = false
   availability_zone       = "ap-northeast-1c"
 
   tags = {
-    Name         = "terraform-template-dev-private-subnet-1"
+    Name         = "terraform-template-dev-private-subnet-1c"
     ProjectName  = "terraform-template"
     Environment  = "dev"
-    ResourceName = "private-subnet-1"
+    ResourceName = "private-subnet-1c"
     Tool         = "terraform"
   }
 }
 
-resource "aws_route_table" "private_0" {
-  vpc_id = aws_vpc.terraform_study.id
+resource "aws_route_table" "private_1a" {
+  vpc_id = aws_vpc.terraform_template.id
 }
 
-resource "aws_route_table" "private_1" {
-  vpc_id = aws_vpc.terraform_study.id
+resource "aws_route_table" "private_1c" {
+  vpc_id = aws_vpc.terraform_template.id
 }
 
-resource "aws_route" "private_0" {
-  route_table_id         = aws_route_table.private_0.id
-  nat_gateway_id         = aws_nat_gateway.terraform_study_0.id
+resource "aws_route" "private_1a" {
+  route_table_id         = aws_route_table.private_1a.id
+  nat_gateway_id         = aws_nat_gateway.terraform_template_0.id
   destination_cidr_block = "0.0.0.0/0"
 }
 
-resource "aws_route" "private_1" {
-  route_table_id         = aws_route_table.private_1.id
-  nat_gateway_id         = aws_nat_gateway.terraform_study_1.id
+resource "aws_route" "private_1c" {
+  route_table_id         = aws_route_table.private_1c.id
+  nat_gateway_id         = aws_nat_gateway.terraform_template_1.id
   destination_cidr_block = "0.0.0.0/0"
 }
 
-resource "aws_route_table_association" "private_0" {
-  subnet_id      = aws_subnet.private_0.id
-  route_table_id = aws_route_table.private_0.id
+resource "aws_route_table_association" "private_1a" {
+  subnet_id      = aws_subnet.private_1a.id
+  route_table_id = aws_route_table.private_1a.id
 }
 
-resource "aws_route_table_association" "private_1" {
-  subnet_id      = aws_subnet.private_1.id
-  route_table_id = aws_route_table.private_1.id
+resource "aws_route_table_association" "private_1c" {
+  subnet_id      = aws_subnet.private_1c.id
+  route_table_id = aws_route_table.private_1c.id
 }
+
+#--------------------------------------------------
+# NAT Gateway
+#--------------------------------------------------
 
 resource "aws_eip" "nat_gateway_0" {
   vpc = true
 
   depends_on = [
-    aws_internet_gateway.terraform_study
+    aws_internet_gateway.terraform_template
   ]
 }
 
@@ -158,25 +166,25 @@ resource "aws_eip" "nat_gateway_1" {
   vpc = true
 
   depends_on = [
-    aws_internet_gateway.terraform_study
+    aws_internet_gateway.terraform_template
   ]
 }
 
-resource "aws_nat_gateway" "terraform_study_0" {
+resource "aws_nat_gateway" "terraform_template_0" {
   allocation_id = aws_eip.nat_gateway_0.id
-  subnet_id     = aws_subnet.public_0.id
+  subnet_id     = aws_subnet.public_1a.id
 
   depends_on = [
-    aws_internet_gateway.terraform_study
+    aws_internet_gateway.terraform_template
   ]
 }
 
-resource "aws_nat_gateway" "terraform_study_1" {
+resource "aws_nat_gateway" "terraform_template_1" {
   allocation_id = aws_eip.nat_gateway_1.id
-  subnet_id     = aws_subnet.public_1.id
+  subnet_id     = aws_subnet.public_1c.id
 
   depends_on = [
-    aws_internet_gateway.terraform_study
+    aws_internet_gateway.terraform_template
   ]
 }
 
