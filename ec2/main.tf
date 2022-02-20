@@ -43,6 +43,7 @@ resource "aws_instance" "web_ec2_1a" {
   subnet_id              = module.network.public_subnet_1a_id
   vpc_security_group_ids = [module.security_group_for_ec2.security_group_id]
   instance_type          = var.instance_type
+  iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
 
   tags = {
     Name         = "${var.project_name}-${var.environment}-ec2_1a"
@@ -58,6 +59,7 @@ resource "aws_instance" "web_ec2_1c" {
   subnet_id              = module.network.public_subnet_1c_id
   vpc_security_group_ids = [module.security_group_for_ec2.security_group_id]
   instance_type          = var.instance_type
+  iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
 
   tags = {
     Name         = "${var.project_name}-${var.environment}-ec2_1c"
@@ -96,4 +98,34 @@ resource "aws_eip" "ec2_1c_eip" {
     ResourceName = "ec2_1c_eip"
     Tool         = var.tool_name
   }
+}
+
+#--------------------------------------------------
+# Profile
+#--------------------------------------------------
+
+data "aws_iam_policy_document" "assume_role" {
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "for_ec2" {
+  name               = "${var.project_name}-${var.environment}-ec2"
+  assume_role_policy = data.aws_iam_policy_document.assume_role.json
+}
+
+resource "aws_iam_role_policy_attachment" "attach_ssm_policy" {
+  role       = aws_iam_role.for_ec2.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+resource "aws_iam_instance_profile" "ec2_profile" {
+  name = "profile_for_ec2"
+  role = aws_iam_role.for_ec2.name
 }
