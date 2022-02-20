@@ -110,19 +110,40 @@ data "aws_iam_policy_document" "assume_role" {
 
     principals {
       type        = "Service"
-      identifiers = ["ec2.amazonaws.com"]
+      identifiers = ["ec2.amazonaws.com", "ssm.amazonaws.com"]
     }
   }
 }
 
 resource "aws_iam_role" "for_ec2" {
-  name               = "${var.project_name}-${var.environment}-ec2"
+  name               = "${var.project_name}-${var.environment}-iam_role_for_ec2"
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
+
+  tags = {
+    Name         = "${var.project_name}-${var.environment}-iam_role_for_ec2"
+    Environment  = var.environment
+    ProjectName  = var.project_name
+    ResourceName = "iam_role_for_ec2"
+    Tool         = var.tool_name
+  }
+}
+
+data "aws_iam_policy" "ssm_policy" {
+  arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+data "aws_iam_policy" "s3_policy" {
+  arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
 }
 
 resource "aws_iam_role_policy_attachment" "attach_ssm_policy" {
   role       = aws_iam_role.for_ec2.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+  policy_arn = data.aws_iam_policy.ssm_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "attach_s3_policy" {
+  role       = aws_iam_role.for_ec2.name
+  policy_arn = data.aws_iam_policy.s3_policy.arn
 }
 
 resource "aws_iam_instance_profile" "ec2_profile" {
