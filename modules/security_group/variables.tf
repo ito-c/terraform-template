@@ -1,9 +1,35 @@
 variable "vpc_id" {}
 variable "port" {}
 variable "cidr_blocks" {
-  type = list(string)
+  description = "cidr blocks"
+  type        = list(string)
+  default     = ["Your Value Here"]
 }
-variable "project_name" {}
-variable "resource_name" {}
-variable "environment" {}
-variable "tool_name" {}
+variable "is_specified_sg" {
+  description = "whether or not given sg id"
+  default     = false
+}
+variable "source_security_group_id" {
+  description = "specify security group id"
+  default     = "Your Value Here"
+}
+variable "resource_name" {
+  description = "project name"
+  type        = string
+  default     = "Your Value Here"
+}
+variable "project_name" {
+  description = "project name"
+  type        = string
+  default     = "terraform_template"
+}
+variable "tool_name" {
+  description = "tool name"
+  type        = string
+  default     = "terraform"
+}
+variable "environment" {
+  description = "environment"
+  type        = string
+  default     = "dev"
+}
