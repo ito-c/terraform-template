@@ -34,7 +34,7 @@ resource "aws_vpc" "terraform_template" {
 
 resource "aws_subnet" "public_1a" {
   vpc_id                  = aws_vpc.terraform_template.id
-  cidr_block              = "172.16.0.0/24"
+  cidr_block              = cidrsubnet(aws_vpc.terraform_template.cidr_block, 8, 0)
   map_public_ip_on_launch = true
   availability_zone       = "ap-northeast-1a"
 
@@ -49,7 +49,7 @@ resource "aws_subnet" "public_1a" {
 
 resource "aws_subnet" "public_1c" {
   vpc_id                  = aws_vpc.terraform_template.id
-  cidr_block              = "172.16.1.0/24"
+  cidr_block              = cidrsubnet(aws_vpc.terraform_template.cidr_block, 8, 1)
   map_public_ip_on_launch = true
   availability_zone       = "ap-northeast-1c"
 
@@ -92,7 +92,7 @@ resource "aws_route_table_association" "public_1c" {
 
 resource "aws_subnet" "private_1a" {
   vpc_id                  = aws_vpc.terraform_template.id
-  cidr_block              = "172.16.2.0/24"
+  cidr_block              = cidrsubnet(aws_vpc.terraform_template.cidr_block, 8, 2)
   map_public_ip_on_launch = false
   availability_zone       = "ap-northeast-1a"
 
@@ -107,7 +107,7 @@ resource "aws_subnet" "private_1a" {
 
 resource "aws_subnet" "private_1c" {
   vpc_id                  = aws_vpc.terraform_template.id
-  cidr_block              = "172.16.3.0/24"
+  cidr_block              = cidrsubnet(aws_vpc.terraform_template.cidr_block, 8, 3)
   map_public_ip_on_launch = false
   availability_zone       = "ap-northeast-1c"
 
