@@ -141,8 +141,8 @@ resource "aws_rds_cluster_parameter_group" "rds_cluster_param_group" {
 resource "aws_db_subnet_group" "db_subnet_group" {
   name = "${local.namePrefix}-db-subnet-group"
   subnet_ids = [
-    module.network.private_subnet_1a_id,
-    module.network.private_subnet_1c_id
+    module.network.private_subnet_1a_db_id,
+    module.network.private_subnet_1c_db_id
   ]
 
   tags = {
