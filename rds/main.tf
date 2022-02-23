@@ -9,11 +9,13 @@ terraform {
     region = "ap-northeast-1"
   }
 }
-
 locals {
+  engine        = "aurora-mysql"
+  engineVersion = "5.7.mysql_aurora.2.10.2"
+
   projectName = "terraform-template"
   environment = "dev"
-  namePrefix  = "${local.namePrefix}"
+  namePrefix  = "${local.projectName}-${local.environment}"
   toolName    = "terraform"
 }
 
@@ -29,7 +31,7 @@ module "network" {
 # Securiry Group
 #--------------------------------------------------
 
-# EC2にアタッチしているSG
+# インバウンドでSGを指定するためEC2にアタッチしているSGを登録
 data "aws_security_group" "ec2" {
   tags = {
     ProjectName  = "terraform-template"
@@ -48,7 +50,7 @@ module "security_group_for_rds" {
 
   environment   = local.environment
   project_name  = local.projectName
-  resource_name = "ec2"
+  resource_name = "rds"
   tool_name     = local.toolName
 }
 
@@ -57,7 +59,7 @@ module "security_group_for_rds" {
 #--------------------------------------------------
 
 resource "aws_db_parameter_group" "db_param_group" {
-  # name   = "${local.namePrefix}-db-param-group"
+  name   = "${local.namePrefix}-db-param-group"
   family = "aurora-mysql5.7"
 
   tags = {
@@ -70,7 +72,7 @@ resource "aws_db_parameter_group" "db_param_group" {
 }
 
 resource "aws_rds_cluster_parameter_group" "rds_cluster_param_group" {
-  # name   = "${local.namePrefix}-rds_cluster_param_group"
+  name   = "${local.namePrefix}-rds-cluster-param-group"
   family = "aurora-mysql5.7"
 
   tags = {
@@ -155,10 +157,14 @@ resource "aws_db_subnet_group" "db_subnet_group" {
 resource "aws_rds_cluster" "aurora_cluster" {
   cluster_identifier = "${local.namePrefix}-aurora-cluster"
 
-  engine          = "aurora-mysql"
-  engine_version  = "5.7.mysql_aurora.2.10.2"
+  engine          = local.engine
+  engine_version  = local.engineVersion
   master_username = "admin"
   master_password = "change_after_start"
+
+  backup_retention_period      = 1
+  preferred_backup_window      = "18:00-19:00"
+  preferred_maintenance_window = "wed:19:15-wed:19:45"
 
   port                            = 3306
   vpc_security_group_ids          = [module.security_group_for_rds.security_group_id]
@@ -186,9 +192,12 @@ resource "aws_rds_cluster" "aurora_cluster" {
 resource "aws_rds_cluster_instance" "aurora_instance" {
   count = "2"
 
-  identifier              = "${local.namePrefix}-aurora-instance-${count.index}"
-  cluster_identifier      = aws_rds_cluster.aurora_cluster.id
-  instance_class          = "db.t3.small"
+  identifier         = "${local.namePrefix}-aurora-instance-${count.index}"
+  cluster_identifier = aws_rds_cluster.aurora_cluster.cluster_identifier
+  engine             = local.engine
+  engine_version     = local.engineVersion
+  instance_class     = "db.t3.small"
+
   db_subnet_group_name    = aws_db_subnet_group.db_subnet_group.name
   db_parameter_group_name = aws_db_parameter_group.db_param_group.name
 
