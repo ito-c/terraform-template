@@ -10,6 +10,13 @@ terraform {
   }
 }
 
+locals {
+  projectName = "terraform-template"
+  environment = "dev"
+  namePrefix  = "${local.projectName}-${local.environment}"
+  toolName    = "terraform"
+}
+
 #--------------------------------------------------
 # Data only Modules
 #--------------------------------------------------
@@ -28,10 +35,10 @@ module "security_group_for_ec2" {
   port        = "80"
   cidr_blocks = ["0.0.0.0/0"]
 
-  environment   = var.environment
-  project_name  = var.project_name
+  environment   = local.environment
+  project_name  = local.projectName
   resource_name = "ec2"
-  tool_name     = var.tool_name
+  tool_name     = local.toolName
 }
 
 #--------------------------------------------------
@@ -46,11 +53,11 @@ resource "aws_instance" "web_ec2_1a" {
   iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
 
   tags = {
-    Name         = "${var.project_name}-${var.environment}-ec2_1a"
-    Environment  = var.environment
-    ProjectName  = var.project_name
-    ResourceName = "ec2_1a"
-    Tool         = var.tool_name
+    Name         = "${local.namePrefix}-ec2-1a"
+    Environment  = local.environment
+    ProjectName  = local.projectName
+    ResourceName = "ec2-1a"
+    Tool         = local.toolName
   }
 }
 
@@ -62,11 +69,11 @@ resource "aws_instance" "web_ec2_1c" {
   iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
 
   tags = {
-    Name         = "${var.project_name}-${var.environment}-ec2_1c"
-    Environment  = var.environment
-    ProjectName  = var.project_name
-    ResourceName = "ec2_1c"
-    Tool         = var.tool_name
+    Name         = "${local.namePrefix}-ec2-1c"
+    Environment  = local.environment
+    ProjectName  = local.projectName
+    ResourceName = "ec2-1c"
+    Tool         = local.toolName
   }
 }
 
@@ -79,11 +86,11 @@ resource "aws_eip" "ec2_1a_eip" {
   instance = aws_instance.web_ec2_1a.id
 
   tags = {
-    Name         = "${var.project_name}-${var.environment}-ec2_1a_eip"
-    Environment  = var.environment
-    ProjectName  = var.project_name
-    ResourceName = "ec2_1a_eip"
-    Tool         = var.tool_name
+    Name         = "${local.namePrefix}-ec2-1a-eip"
+    Environment  = local.environment
+    ProjectName  = local.projectName
+    ResourceName = "ec2-1a-eip"
+    Tool         = local.toolName
   }
 }
 
@@ -92,11 +99,11 @@ resource "aws_eip" "ec2_1c_eip" {
   instance = aws_instance.web_ec2_1c.id
 
   tags = {
-    Name         = "${var.project_name}-${var.environment}-ec2_1c_eip"
-    Environment  = var.environment
-    ProjectName  = var.project_name
-    ResourceName = "ec2_1c_eip"
-    Tool         = var.tool_name
+    Name         = "${local.namePrefix}-ec2-1c-eip"
+    Environment  = local.environment
+    ProjectName  = local.projectName
+    ResourceName = "ec2-1c-eip"
+    Tool         = local.toolName
   }
 }
 
@@ -115,16 +122,20 @@ data "aws_iam_policy_document" "assume_role" {
   }
 }
 
+#--------------------------------------------------
+# IAM
+#--------------------------------------------------
+
 resource "aws_iam_role" "for_ec2" {
-  name               = "${var.project_name}-${var.environment}-iam_role_for_ec2"
+  name               = "${local.namePrefix}-iam-role-for-ec2"
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 
   tags = {
-    Name         = "${var.project_name}-${var.environment}-iam_role_for_ec2"
-    Environment  = var.environment
-    ProjectName  = var.project_name
-    ResourceName = "iam_role_for_ec2"
-    Tool         = var.tool_name
+    Name         = "${local.namePrefix}-iam-role-for-ec2"
+    Environment  = local.environment
+    ProjectName  = local.projectName
+    ResourceName = "iam-role-for-ec2"
+    Tool         = local.toolName
   }
 }
 

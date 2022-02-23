@@ -10,6 +10,13 @@ terraform {
   }
 }
 
+locals {
+  projectName = "terraform-template"
+  environment = "dev"
+  namePrefix  = "${local.namePrefix}"
+  toolName    = "terraform"
+}
+
 #--------------------------------------------------
 # Data only Modules
 #--------------------------------------------------
@@ -25,7 +32,7 @@ module "network" {
 # EC2にアタッチしているSG
 data "aws_security_group" "ec2" {
   tags = {
-    ProjectName  = "terraform_template"
+    ProjectName  = "terraform-template"
     Environment  = "dev"
     ResourceName = "ec2"
   }
@@ -39,10 +46,10 @@ module "security_group_for_rds" {
   is_specified_sg          = true
   source_security_group_id = data.aws_security_group.ec2.id
 
-  environment   = var.environment
-  project_name  = var.project_name
+  environment   = local.environment
+  project_name  = local.projectName
   resource_name = "ec2"
-  tool_name     = var.tool_name
+  tool_name     = local.toolName
 }
 
 #--------------------------------------------------
@@ -50,28 +57,28 @@ module "security_group_for_rds" {
 #--------------------------------------------------
 
 resource "aws_db_parameter_group" "db_param_group" {
-  # name   = "${var.project_name}-${var.environment}-db-param-group"
+  # name   = "${local.namePrefix}-db-param-group"
   family = "aurora-mysql5.7"
 
   tags = {
-    Name         = "${var.project_name}-${var.environment}-db_param_group"
-    Environment  = var.environment
-    ProjectName  = var.project_name
-    ResourceName = "db_param_group"
-    Tool         = var.tool_name
+    Name         = "${local.namePrefix}-db-param-group"
+    Environment  = local.environment
+    ProjectName  = local.projectName
+    ResourceName = "db-param-group"
+    Tool         = local.toolName
   }
 }
 
 resource "aws_rds_cluster_parameter_group" "rds_cluster_param_group" {
-  # name   = "${var.project_name}-${var.environment}-rds_cluster_param_group"
+  # name   = "${local.namePrefix}-rds_cluster_param_group"
   family = "aurora-mysql5.7"
 
   tags = {
-    Name         = "${var.project_name}-${var.environment}-rds_cluster_param_group"
-    Environment  = var.environment
-    ProjectName  = var.project_name
-    ResourceName = "rds_cluster_param_group"
-    Tool         = var.tool_name
+    Name         = "${local.namePrefix}-rds-cluster-param-group"
+    Environment  = local.environment
+    ProjectName  = local.projectName
+    ResourceName = "rds-cluster-param-group"
+    Tool         = local.toolName
   }
 
   parameter {
@@ -130,23 +137,23 @@ resource "aws_rds_cluster_parameter_group" "rds_cluster_param_group" {
 }
 
 resource "aws_db_subnet_group" "db_subnet_group" {
-  name = "${var.project_name}-${var.environment}-db_subnet_group"
+  name = "${local.namePrefix}-db-subnet-group"
   subnet_ids = [
     module.network.private_subnet_1a_id,
     module.network.private_subnet_1c_id
   ]
 
   tags = {
-    Name         = "${var.project_name}-${var.environment}-db_subnet_group"
-    Environment  = var.environment
-    ProjectName  = var.project_name
-    ResourceName = "db_subnet_group"
-    Tool         = var.tool_name
+    Name         = "${local.namePrefix}-db-subnet-group"
+    Environment  = local.environment
+    ProjectName  = local.projectName
+    ResourceName = "db-subnet-group"
+    Tool         = local.toolName
   }
 }
 
 resource "aws_rds_cluster" "aurora_cluster" {
-  cluster_identifier = "${var.project_name}-${var.environment}-aurora-cluster"
+  cluster_identifier = "${local.namePrefix}-aurora-cluster"
 
   engine          = "aurora-mysql"
   engine_version  = "5.7.mysql_aurora.2.10.2"
@@ -168,28 +175,28 @@ resource "aws_rds_cluster" "aurora_cluster" {
   }
 
   tags = {
-    Name         = "${var.project_name}-${var.environment}-aurora_cluster"
-    Environment  = var.environment
-    ProjectName  = var.project_name
-    ResourceName = "aurora_cluster"
-    Tool         = var.tool_name
+    Name         = "${local.namePrefix}-aurora-cluster"
+    Environment  = local.environment
+    ProjectName  = local.projectName
+    ResourceName = "aurora-cluster"
+    Tool         = local.toolName
   }
 }
 
 resource "aws_rds_cluster_instance" "aurora_instance" {
   count = "2"
 
-  identifier              = "${var.project_name}-${var.environment}-aurora-instance-${count.index}"
+  identifier              = "${local.namePrefix}-aurora-instance-${count.index}"
   cluster_identifier      = aws_rds_cluster.aurora_cluster.id
   instance_class          = "db.t3.small"
   db_subnet_group_name    = aws_db_subnet_group.db_subnet_group.name
   db_parameter_group_name = aws_db_parameter_group.db_param_group.name
 
   tags = {
-    Name         = "${var.project_name}-${var.environment}-aurora_instance_${count.index}"
-    Environment  = var.environment
-    ProjectName  = var.project_name
-    ResourceName = "aurora_instance"
-    Tool         = var.tool_name
+    Name         = "${local.namePrefix}-aurora-instance-${count.index}"
+    Environment  = local.environment
+    ProjectName  = local.projectName
+    ResourceName = "aurora-instance"
+    Tool         = local.toolName
   }
 }

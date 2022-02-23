@@ -10,6 +10,13 @@ terraform {
   }
 }
 
+locals {
+  projectName = "terraform-template"
+  environment = "dev"
+  namePrefix  = "${local.projectName}-${local.environment}"
+  toolName    = "terraform"
+}
+
 #--------------------------------------------------
 # VPC
 #--------------------------------------------------
@@ -20,11 +27,11 @@ resource "aws_vpc" "terraform_template" {
   enable_dns_hostnames = true
 
   tags = {
-    Name         = "terraform-template-dev-vpc"
-    ProjectName  = "terraform-template"
-    Environment  = "dev"
+    Name         = "${local.namePrefix}-vpc"
+    ProjectName  = local.projectName
+    Environment  = local.environment
     ResourceName = "vpc"
-    Tool         = "terraform"
+    Tool         = local.toolName
   }
 }
 
@@ -39,11 +46,12 @@ resource "aws_subnet" "public_1a" {
   availability_zone       = "ap-northeast-1a"
 
   tags = {
-    Name         = "terraform-template-dev-public-subnet-1a"
-    ProjectName  = "terraform-template"
-    Environment  = "dev"
+    Name         = "${local.namePrefix}-public-subnet-1a"
+    ProjectName  = local.projectName
+    Environment  = local.environment
     ResourceName = "public-subnet-1a"
-    Tool         = "terraform"
+    Tool         = local.toolName
+
   }
 }
 
@@ -54,11 +62,11 @@ resource "aws_subnet" "public_1c" {
   availability_zone       = "ap-northeast-1c"
 
   tags = {
-    Name         = "terraform-template-dev-public-subnet-1c"
-    ProjectName  = "terraform-template"
-    Environment  = "dev"
+    Name         = "${local.namePrefix}-public-subnet-1c"
+    ProjectName  = local.projectName
+    Environment  = local.environment
     ResourceName = "public-subnet-1c"
-    Tool         = "terraform"
+    Tool         = local.toolName
   }
 }
 
@@ -97,11 +105,11 @@ resource "aws_subnet" "private_1a" {
   availability_zone       = "ap-northeast-1a"
 
   tags = {
-    Name         = "terraform-template-dev-private-subnet-1a"
-    ProjectName  = "terraform-template"
-    Environment  = "dev"
+    Name         = "${local.namePrefix}-private-subnet-1a"
+    ProjectName  = local.projectName
+    Environment  = local.environment
     ResourceName = "private-subnet-1a"
-    Tool         = "terraform"
+    Tool         = local.toolName
   }
 }
 
@@ -112,11 +120,12 @@ resource "aws_subnet" "private_1c" {
   availability_zone       = "ap-northeast-1c"
 
   tags = {
-    Name         = "terraform-template-dev-private-subnet-1c"
-    ProjectName  = "terraform-template"
-    Environment  = "dev"
+    Name         = "${local.namePrefix}-private-subnet-1c"
+    ProjectName  = local.projectName
+    Environment  = local.environment
     ResourceName = "private-subnet-1c"
-    Tool         = "terraform"
+    Tool         = local.toolName
+
   }
 }
 
