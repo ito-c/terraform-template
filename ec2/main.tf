@@ -49,7 +49,7 @@ resource "aws_instance" "web_ec2_1a" {
   ami                    = "ami-08a8688fb7eacb171"
   subnet_id              = module.network.public_subnet_1a_id
   vpc_security_group_ids = [module.security_group_for_ec2.security_group_id]
-  instance_type          = var.instance_type
+  instance_type          = "t2.micro"
   iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
 
   tags = {
@@ -65,7 +65,7 @@ resource "aws_instance" "web_ec2_1c" {
   ami                    = "ami-08a8688fb7eacb171"
   subnet_id              = module.network.public_subnet_1c_id
   vpc_security_group_ids = [module.security_group_for_ec2.security_group_id]
-  instance_type          = var.instance_type
+  instance_type          = "t2.micro"
   iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
 
   tags = {
@@ -139,22 +139,14 @@ resource "aws_iam_role" "for_ec2" {
   }
 }
 
-data "aws_iam_policy" "ssm_policy" {
-  arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-}
-
-data "aws_iam_policy" "s3_policy" {
-  arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
-}
-
 resource "aws_iam_role_policy_attachment" "attach_ssm_policy" {
   role       = aws_iam_role.for_ec2.name
-  policy_arn = data.aws_iam_policy.ssm_policy.arn
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
 resource "aws_iam_role_policy_attachment" "attach_s3_policy" {
   role       = aws_iam_role.for_ec2.name
-  policy_arn = data.aws_iam_policy.s3_policy.arn
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
 }
 
 resource "aws_iam_instance_profile" "ec2_profile" {
