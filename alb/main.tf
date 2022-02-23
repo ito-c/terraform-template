@@ -1,64 +1,115 @@
 terraform {
+  required_version = ">= 0.12.0"
+  required_providers {
+    aws = ">= 3.37.0"
+  }
   backend "s3" {
-    bucket = "tfstate-terraform-study"
+    bucket = "tfstate-terraform-template"
     key    = "alb/terraform.tfstate"
     region = "ap-northeast-1"
   }
 }
 
-data "terraform_remote_state" "network" {
-  backend = "s3"
+locals {
+  namePrefix  = "terraform-template-dev"
+  projectName = "terraform-template"
+  environment = "dev"
+  toolName    = "terraform"
+}
 
-  config = {
-    bucket = "tfstate-terraform-study"
-    key    = "network/terraform.tfstate"
-    region = "ap-northeast-1"
+#--------------------------------------------------
+# Data only Modules
+#--------------------------------------------------
+
+module "network" {
+  source = "./network"
+}
+
+# data "terraform_remote_state" "network" {
+#   backend = "s3"
+
+#   config = {
+#     bucket = "tfstate-terraform-study"
+#     key    = "network/terraform.tfstate"
+#     region = "ap-northeast-1"
+#   }
+# }
+
+# data "terraform_remote_state" "s3" {
+#   backend = "s3"
+
+#   config = {
+#     bucket = "tfstate-terraform-study"
+#     key    = "s3/terraform.tfstate"
+#     region = "ap-northeast-1"
+#   }
+# }
+
+#--------------------------------------------------
+# Securiry Group
+#--------------------------------------------------
+
+module "security_group_for_alb" {
+  source = "../modules/security_group"
+  # vpc_id      = data.terraform_remote_state.network.outputs.terraform_study_vpc_id
+  vpc_id      = module.network.vpc_id
+  port        = "80"
+  cidr_blocks = ["0.0.0.0/0"]
+
+  environment   = local.environment
+  project_name  = local.projectName
+  resource_name = "alb"
+  tool_name     = local.toolName
+}
+
+
+#--------------------------------------------------
+# ALB
+#--------------------------------------------------
+
+data "aws_s3_bucket" "alb_log" {
+  tags = {
+    ProjectName  = "terraform-template"
+    Environment  = "dev"
+    ResourceName = "alb-log-bucket"
   }
 }
 
-data "terraform_remote_state" "s3" {
-  backend = "s3"
-
-  config = {
-    bucket = "tfstate-terraform-study"
-    key    = "s3/terraform.tfstate"
-    region = "ap-northeast-1"
-  }
-}
-
-resource "aws_lb" "terraform_study" {
-  name                       = "terraform-study"
+resource "aws_lb" "alb" {
+  name                       = "${local.namePrefix}-alb"
   load_balancer_type         = "application"
   internal                   = false
   idle_timeout               = 60
   enable_deletion_protection = false
 
   subnets = [
-    data.terraform_remote_state.network.outputs.terraform_study_subnet_public_0_id,
-    data.terraform_remote_state.network.outputs.terraform_study_subnet_public_1_id
+    module.network.public_subnet_1a_id,
+    module.network.public_subnet_1c_id,
+    # data.terraform_remote_state.network.outputs.terraform_study_subnet_public_0_id,
+    # data.terraform_remote_state.network.outputs.terraform_study_subnet_public_1_id
   ]
 
   access_logs {
-    bucket  = data.terraform_remote_state.s3.outputs.alb_log_id
+    # bucket  = data.terraform_remote_state.s3.outputs.alb_log_id
+    bucket  = module.aws_s3_bucket.alb_log.id
     enabled = true
   }
 
   security_groups = [
-    module.http_sg.security_group_id
+    module.security_group_for_alb.security_group_id
   ]
-}
 
-module "http_sg" {
-  source        = "../modules/security_group"
-  vpc_id        = data.terraform_remote_state.network.outputs.terraform_study_vpc_id
-  port          = "80"
-  cidr_blocks   = ["0.0.0.0/0"]
-  resource_name = "alb"
-  environment   = "dev"
+  tags = {
+    Name         = "${local.namePrefix}-alb"
+    Environment  = local.environment
+    ProjectName  = local.projectName
+    ResourceName = "alb"
+    Tool         = local.toolName
+  }
 }
 
 resource "aws_lb_listener" "http" {
-  load_balancer_arn = aws_lb.terraform_study.arn
+  load_balancer_arn = aws_lb.alb.arn
   port              = "80"
   protocol          = "HTTP"
 

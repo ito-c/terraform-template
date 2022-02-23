@@ -1,1 +1,1 @@
-# terraform-study
+# terraform-template
