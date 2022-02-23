@@ -76,6 +76,14 @@ resource "aws_internet_gateway" "terraform_template" {
 
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.terraform_template.id
+
+  tags = {
+    Name         = "${local.namePrefix}-public-rtb"
+    ProjectName  = local.projectName
+    Environment  = local.environment
+    ResourceName = "public-rtb"
+    Tool         = local.toolName
+  }
 }
 
 resource "aws_route" "public" {
@@ -129,13 +137,29 @@ resource "aws_subnet" "private_1c" {
   }
 }
 
-# resource "aws_route_table" "private_1a" {
-#   vpc_id = aws_vpc.terraform_template.id
-# }
+resource "aws_route_table" "private_1a" {
+  vpc_id = aws_vpc.terraform_template.id
 
-# resource "aws_route_table" "private_1c" {
-#   vpc_id = aws_vpc.terraform_template.id
-# }
+  tags = {
+    Name         = "${local.namePrefix}-private-rtb-1"
+    ProjectName  = local.projectName
+    Environment  = local.environment
+    ResourceName = "private-rtb-1"
+    Tool         = local.toolName
+  }
+}
+
+resource "aws_route_table" "private_1c" {
+  vpc_id = aws_vpc.terraform_template.id
+
+  tags = {
+    Name         = "${local.namePrefix}-private-rtb-2"
+    ProjectName  = local.projectName
+    Environment  = local.environment
+    ResourceName = "private-rtb-2"
+    Tool         = local.toolName
+  }
+}
 
 # resource "aws_route" "private_1a" {
 #   route_table_id         = aws_route_table.private_1a.id
