@@ -11,9 +11,9 @@ terraform {
 }
 
 locals {
-  namePrefix  = "terraform-template-dev"
   projectName = "terraform-template"
   environment = "dev"
+  namePrefix  = "${local.projectName}-${local.environment}"
   toolName    = "terraform"
 }
 
@@ -25,33 +25,12 @@ module "network" {
   source = "./network"
 }
 
-# data "terraform_remote_state" "network" {
-#   backend = "s3"
-
-#   config = {
-#     bucket = "tfstate-terraform-study"
-#     key    = "network/terraform.tfstate"
-#     region = "ap-northeast-1"
-#   }
-# }
-
-# data "terraform_remote_state" "s3" {
-#   backend = "s3"
-
-#   config = {
-#     bucket = "tfstate-terraform-study"
-#     key    = "s3/terraform.tfstate"
-#     region = "ap-northeast-1"
-#   }
-# }
-
 #--------------------------------------------------
 # Securiry Group
 #--------------------------------------------------
 
 module "security_group_for_alb" {
-  source = "../modules/security_group"
-  # vpc_id      = data.terraform_remote_state.network.outputs.terraform_study_vpc_id
+  source      = "../modules/security_group"
   vpc_id      = module.network.vpc_id
   port        = "80"
   cidr_blocks = ["0.0.0.0/0"]
@@ -62,17 +41,12 @@ module "security_group_for_alb" {
   tool_name     = local.toolName
 }
 
-
 #--------------------------------------------------
 # ALB
 #--------------------------------------------------
 
 data "aws_s3_bucket" "alb_log" {
-  tags = {
-    ProjectName  = "terraform-template"
-    Environment  = "dev"
-    ResourceName = "alb-log-bucket"
-  }
+  bucket = "terraform-template-dev-alb-log-bucket"
 }
 
 resource "aws_lb" "alb" {
@@ -85,13 +59,10 @@ resource "aws_lb" "alb" {
   subnets = [
     module.network.public_subnet_1a_id,
     module.network.public_subnet_1c_id,
-    # data.terraform_remote_state.network.outputs.terraform_study_subnet_public_0_id,
-    # data.terraform_remote_state.network.outputs.terraform_study_subnet_public_1_id
   ]
 
   access_logs {
-    # bucket  = data.terraform_remote_state.s3.outputs.alb_log_id
-    bucket  = module.aws_s3_bucket.alb_log.id
+    bucket  = data.aws_s3_bucket.alb_log.id
     enabled = true
   }
 
