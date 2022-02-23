@@ -113,11 +113,6 @@ output "alb_service_account_id" {
   value = data.aws_elb_service_account.current.id
 }
 
-resource "aws_s3_bucket_policy" "alb_log" {
-  bucket = aws_s3_bucket.alb_log.id
-  policy = data.aws_iam_policy_document.alb_log.json
-}
-
 # ALBログを書き込むためのIAMポリシー
 data "aws_iam_policy_document" "alb_log" {
   statement {
@@ -127,9 +122,12 @@ data "aws_iam_policy_document" "alb_log" {
 
     principals {
       type        = "AWS"
-      identifiers = ["${data.aws_elb_service_account.alb_log.id}"]
-      # TODO: 修正
-      # identifiers = ["582318560864"]
+      identifiers = [data.aws_elb_service_account.current.id]
     }
   }
+}
+
+resource "aws_s3_bucket_policy" "alb_log" {
+  bucket = aws_s3_bucket.alb_log.id
+  policy = data.aws_iam_policy_document.alb_log.json
 }
