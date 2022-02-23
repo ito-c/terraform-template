@@ -152,28 +152,6 @@ resource "aws_lb_listener" "alb_http_listener" {
   }
 }
 
-resource "aws_lb_listener_rule" "redirect_google" {
-  listener_arn = aws_lb_listener.alb_http_listener.arn
-
-  action {
-    type = "redirect"
-
-    redirect {
-      host        = "google.co.jp"
-      port        = "443"
-      path        = "/"
-      protocol    = "HTTPS"
-      status_code = "HTTP_301"
-    }
-  }
-
-  condition {
-    path_pattern {
-      values = ["/google"]
-    }
-  }
-}
-
 resource "aws_lb_listener_rule" "fixed_response" {
   listener_arn = aws_lb_listener.alb_http_listener.arn
 
