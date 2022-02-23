@@ -4,6 +4,8 @@
 
 elb - public - private の汎用的な AWS 構成を terraform で作成しています。
 
+![terraform_20220223 drawio](https://user-images.githubusercontent.com/56192039/155341829-1921412a-c164-4139-bdfb-5e4d9d2e36a4.png)
+
 ## 使い方
 
 ### 準備
@@ -13,11 +15,11 @@ elb - public - private の汎用的な AWS 構成を terraform で作成して�
   - `~/.aws/credentials`に terraform 用アカウントのプロファイルを作成
 - direnv の導入
   - 各ディレクトリで`.envrc`を使用してプロファイルを読み込む
-  ```bash
-  # .envrc
-  export AWS_PROFILE=hogehoge
-  export AWS_REGION=ap-northeast-1
-  ```
+    ```bash
+    # .envrc
+    export AWS_PROFILE=hogehoge
+    export AWS_REGION=ap-northeast-1
+    ```
 - `.envrc`については、グローバルな`gitignore`対象を推奨します
 
 ### terraform 実行
@@ -26,10 +28,10 @@ elb - public - private の汎用的な AWS 構成を terraform で作成して�
   - そのため、各リソースディレクトリ内で init から apply までを行います
 - tfstate はリモートで S3 に格納しています
   - `tfstate-terraform-template`バケットが存在しない場合、aws-cli から作成します
-  ```bash
-  $ aws s3api create-bucket --bucket tfstate-terraform-template \
-  --create-bucket-configuration LocationConstraint=ap-northeast-1
-  ```
+    ```bash
+    $ aws s3api create-bucket --bucket tfstate-terraform-template \
+    --create-bucket-configuration LocationConstraint=ap-northeast-1
+    ```
   - 同バケットについて、バージョニング、暗号化(SSE-S3)、ブロックパブリックアクセスを設定します
 
 ```bash
