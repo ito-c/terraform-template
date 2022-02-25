@@ -24,13 +24,6 @@ elb - public - private の汎用的な AWS 構成を terraform で作成して�
 
 ### terraform 実行
 
-- apply 時の影響範囲、変更可能性、RDS や S3 のステートフルな性質を考慮し、各リソースで実行ファイルを分割しています
-  - そのため、各リソースディレクトリ内で init から apply までを行います
-  - 順番は`s3`
-  - リソース削除時は、順番を逆にして削除します
-    ```bash
-    $ terraform destroy
-    ```
 - tfstate はリモートで S3 に格納しています
   - `tfstate-terraform-template`バケットが存在しない場合、aws-cli から作成します
     ```bash
@@ -38,6 +31,14 @@ elb - public - private の汎用的な AWS 構成を terraform で作成して�
     --create-bucket-configuration LocationConstraint=ap-northeast-1
     ```
   - 同バケットについて、バージョニング、暗号化(SSE-S3)、ブロックパブリックアクセスを設定します
+- apply 時の影響範囲、変更可能性、RDS や S3 のステートフルな性質を考慮し、各リソースで実行ファイルを分割しています
+  - 各リソースディレクトリ内で init から apply までを行います
+  - リソース削除時は、以下実行順序を逆にして削除します
+    ```bash
+    $ terraform destroy
+    ```
+
+#### 実行順序
 
 ```bash
 $ cd s3
