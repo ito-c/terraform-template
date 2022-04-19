@@ -2,7 +2,7 @@
 
 ## 概要
 
-elb - public - private の汎用的な AWS 構成を terraform で作成しています。
+public - private - private の汎用的な AWS 構成を terraform で作成しています。
 
 ![terraform_20220223 drawio](https://user-images.githubusercontent.com/56192039/155341829-1921412a-c164-4139-bdfb-5e4d9d2e36a4.png)
 
@@ -20,7 +20,7 @@ elb - public - private の汎用的な AWS 構成を terraform で作成して�
     export AWS_PROFILE=hogehoge
     export AWS_REGION=ap-northeast-1
     ```
-  - `.envrc`については、グローバルな`gitignore`対象を推奨します
+  - `.envrc`については、グローバルな`gitignore`対象を推奨
 
 ### terraform 実行
 
